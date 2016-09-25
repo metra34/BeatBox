@@ -4,7 +4,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.sound.midi.*;
 import java.util.*;
-import javax.swing.border.LineBorder;
 
 public class BeatBoxGui {
 
@@ -22,7 +21,7 @@ public class BeatBoxGui {
 	private int[] instruments = {35, 42, 46, 38, 49, 39, 50, 60, 70, 72, 64, 56, 58, 47, 67, 63};
 	
 	public static void main (String[] args){
-		BeatBoxGui g = new BeatBoxGui();
+		new BeatBoxGui();
 	}
 
 	public BeatBoxGui() {
@@ -166,7 +165,7 @@ public class BeatBoxGui {
 		
 		try {
 			sequencer.setSequence(sequence);
-			sequencer.setLoopCount(sequencer.LOOP_CONTINUOUSLY);
+			sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
 			sequencer.start();
 			sequencer.setTempoInBPM(120);
 		} catch (Exception e) {
