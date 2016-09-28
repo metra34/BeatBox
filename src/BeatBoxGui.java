@@ -1,12 +1,13 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
 import javax.sound.midi.*;
 import java.util.*;
 
 public class BeatBoxGui {
-
+    
 	private JFrame frame;
 	private JPanel mainPanel;
 	private ArrayList<JCheckBox> checkboxList;
@@ -75,6 +76,17 @@ public class BeatBoxGui {
 		JButton clearSelected = new JButton("Clear Selection");
 		clearSelected.addActionListener(new ClearSelectedListener());
 		buttonBox.add(clearSelected);
+		buttonBox.add(Box.createRigidArea(new Dimension(0,5)));
+		
+		// adding serialize buttons
+		JButton serializeBtn = new JButton("Serialize It");
+		serializeBtn.addActionListener(new SerializeListener());
+		buttonBox.add(serializeBtn);
+		buttonBox.add(Box.createRigidArea(new Dimension(0,5)));
+		
+		JButton restoreBtn = new JButton("Restore");
+		restoreBtn.addActionListener(new LoadListener());
+		buttonBox.add(restoreBtn);
 		buttonBox.add(Box.createRigidArea(new Dimension(0,5)));
 		
 		// box to hold all the names of instruments, use for loop to fill the box with Labels (should be 16)
@@ -202,7 +214,7 @@ public class BeatBoxGui {
 		return event;
 	}
 
-	public class StartListener implements ActionListener{
+	private class StartListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			buildTrackAndStart();
@@ -210,7 +222,7 @@ public class BeatBoxGui {
 		
 	}
 	
-	public class StopListener implements ActionListener{
+	private class StopListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			sequencer.stop();
@@ -218,7 +230,7 @@ public class BeatBoxGui {
 		
 	}
 	
-	public class UpTempoListener implements ActionListener{
+	private class UpTempoListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			// adjust the tempo +3%
@@ -227,7 +239,7 @@ public class BeatBoxGui {
 		}
 	}
 	
-	public class DownTempoListener implements ActionListener{
+	private class DownTempoListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			// adjust the tempo -3%
@@ -237,7 +249,7 @@ public class BeatBoxGui {
 		
 	}
 	
-	public class ResetTempoListener implements ActionListener{
+	private class ResetTempoListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			// reset TempoFactor to 1
@@ -245,7 +257,7 @@ public class BeatBoxGui {
 		}
 	}
 	
-	public class ClearSelectedListener implements ActionListener{
+	private class ClearSelectedListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			// reset all checkboxes to selected = false, stop sequencer;
@@ -255,6 +267,61 @@ public class BeatBoxGui {
 			}
 			sequencer.stop();
 		}
+	}
+	
+	private class SerializeListener implements ActionListener{
+	    @Override
+	    public void actionPerformed(ActionEvent event) {
+		// create a boolean area of size 256, loop through checkboxList and set boolean[i] to true if checkbox at that position is checked
+		// prompt the user to choose a file
+		// write the boolean array to given file
+		
+		boolean[] checkboxes = new boolean[256];
+		for (int i = 0; i<checkboxList.size(); i++){
+		    if (checkboxList.get(i).isSelected()){
+			checkboxes[i] = true;
+		    }
+		}
+		
+		JFileChooser fileSave = new JFileChooser();
+		fileSave.showSaveDialog(frame);
+		
+		try {
+		    ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(fileSave.getSelectedFile()));
+		    os.writeObject(checkboxes);
+		    os.close();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+	    }
+	}
+	
+	private class LoadListener implements ActionListener{
+	    @Override
+	    public void actionPerformed(ActionEvent event) {
+		// TODO
+		// prompt user for a file, load the boolean array from file, assign the values to the checkboxList ArrayList
+		
+		try{
+		    JFileChooser openFile = new JFileChooser();
+		    openFile.showOpenDialog(frame);
+		    ObjectInputStream is = new ObjectInputStream(new FileInputStream(openFile.getSelectedFile()));
+		    boolean[] checkBoxes = (boolean[]) is.readObject();
+		    is.close();
+		    
+		    for (int i=0; i<checkBoxes.length; i++){
+			JCheckBox box = checkboxList.get(i);
+			box.setSelected(checkBoxes[i]);
+			checkboxList.set(i, box);
+		    }
+		}catch(IOException | ClassNotFoundException e){
+		    e.printStackTrace();
+		}catch (Exception e){
+		    e.printStackTrace();
+		}
+		
+	    }
+	    
 	}
 
 }
