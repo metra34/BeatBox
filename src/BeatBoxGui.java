@@ -14,6 +14,8 @@ public class BeatBoxGui {
 	private Sequencer sequencer;
 	private Sequence sequence;
 	private Track track;
+	private JTextArea chatBox;
+	private JTextArea userInputBox;
 	
 	// Names of the instruments to build JLabels with
 	private String[] instrumentNames = {"Bass Drum", "Closed Hi-Hat", "Open Hi-Hat", "Acoustic Snare", "Crash Cymbal", "Hand Clap", "High Tom",
@@ -35,7 +37,6 @@ public class BeatBoxGui {
 	private void initialize() {
 		frame = new JFrame("BeatBox");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setBounds(50, 50, 300, 300);
 		BorderLayout layout = new BorderLayout();
 		JPanel background = new JPanel(layout);
 		background.setBackground(new Color(153, 204, 204));
@@ -45,8 +46,9 @@ public class BeatBoxGui {
 		frame.getContentPane().add(background);
 		
 		checkboxList = new ArrayList<JCheckBox>();
-		// hold the buttons in a box with vertical layout
+		// hold the buttons in a box with vertical layout, add empty border to add default spacing of 2 pixels between buttonBox components and mainPanel
 		Box buttonBox = new Box(BoxLayout.Y_AXIS);
+		buttonBox.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 		
 		JButton start = new JButton("Start");
 		start.addActionListener(new StartListener());
@@ -87,7 +89,26 @@ public class BeatBoxGui {
 		JButton restoreBtn = new JButton("Restore");
 		restoreBtn.addActionListener(new LoadListener());
 		buttonBox.add(restoreBtn);
+		buttonBox.add(Box.createRigidArea(new Dimension(0,10)));
+		
+		//adding client chat components
+		chatBox = new JTextArea("No new messages", 4, 10);
+		chatBox.setEditable(false);
+		chatBox.setLineWrap(true);
+		chatBox.setWrapStyleWord(true);
+		buttonBox.add(chatBox);
+		buttonBox.add(Box.createRigidArea(new Dimension(0,2)));
+		
+		userInputBox = new JTextArea(4,10);
+		userInputBox.setLineWrap(true);
+		userInputBox.setWrapStyleWord(true);
+		buttonBox.add(userInputBox);
 		buttonBox.add(Box.createRigidArea(new Dimension(0,5)));
+		
+		// TODO implement send button listener
+		JButton sendChatBtn = new JButton("SendIt");
+		buttonBox.add(sendChatBtn);
+		
 		
 		// box to hold all the names of instruments, use for loop to fill the box with Labels (should be 16)
 		Box nameBox = new Box(BoxLayout.Y_AXIS);
@@ -119,6 +140,13 @@ public class BeatBoxGui {
 		setUpMidi();
 		
 		frame.pack();
+		
+		// set size to 75% of screen size
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int width = (int) (screenSize.getWidth() * 0.75);
+		int height = (int) (screenSize.getHeight() * 0.75);
+		frame.setSize(width, height);
+		
 		frame.setVisible(true);
 	}
 	
@@ -299,7 +327,6 @@ public class BeatBoxGui {
 	private class LoadListener implements ActionListener{
 	    @Override
 	    public void actionPerformed(ActionEvent event) {
-		// TODO
 		// prompt user for a file, load the boolean array from file, assign the values to the checkboxList ArrayList
 		
 		try{
@@ -314,6 +341,9 @@ public class BeatBoxGui {
 			box.setSelected(checkBoxes[i]);
 			checkboxList.set(i, box);
 		    }
+		    
+		    sequencer.stop();
+		    buildTrackAndStart();
 		}catch(IOException | ClassNotFoundException e){
 		    e.printStackTrace();
 		}catch (Exception e){
