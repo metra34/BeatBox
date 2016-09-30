@@ -23,14 +23,15 @@ public class BeatBoxGui {
     private Sequence mySequence = null;
 
     // adding Client components for chat
-    private JList incomingList;
+    private JList<String> incomingList;
     private JTextField userMessage;
-    private String userName = "anonymous";
-    private String ipAddress = "127.0.0.1";
-    private int portNum = 5000;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private int nextNum;
+    
+    private String userName = "anonymous";
+    private String ipAddress = "127.0.0.1";
+    private int portNum = 5000;
     
     // store recieved checkBox settings
     private Vector<String> listVector;
@@ -71,7 +72,9 @@ public class BeatBoxGui {
 	    Thread remote = new Thread(new RemoteReader());
 	    remote.start();
 	    
-	}catch(Exception e){ e.printStackTrace(); }
+	}catch(Exception e){ 
+	    System.out.println("Could not connect, offline mode only");
+	}
     }
 
     private void initialize() {
@@ -145,14 +148,14 @@ public class BeatBoxGui {
 	
 	listVector = new Vector<String>();
 	otherSeqsMap = new HashMap<String, boolean[]>();
-	incomingList = new JList();
+	incomingList = new JList<String>();
 	incomingList.addListSelectionListener(new MyListSelectionListener());
 	incomingList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	JScrollPane theList = new JScrollPane(incomingList);
 	buttonBox.add(theList);
 	incomingList.setListData(listVector); // initially empty
 	buttonBox.add(Box.createRigidArea(new Dimension(0, 2)));
-	buttonBox.add(Box.createGlue());
+	//buttonBox.add(Box.createGlue());
 
 	// box to hold all the names of instruments, use for loop to fill the
 	// box with Labels (should be 16)
@@ -187,7 +190,7 @@ public class BeatBoxGui {
 
 	frame.pack();
 	
-	userMessage.setPreferredSize(new Dimension(100, 20));
+	//userMessage.setPreferredSize(new Dimension(100, 20));
 
 	// set size to 75% of screen size
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -431,7 +434,6 @@ public class BeatBoxGui {
 	    
 	    boolean[] checkboxState = getCheckboxState();
 	    
-	    String messageToSend = null;
 	    try{
 		out.writeObject(userName + nextNum++ + ": "+userMessage.getText());
 		out.writeObject(checkboxState);
