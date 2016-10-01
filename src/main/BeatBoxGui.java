@@ -25,6 +25,7 @@ public class BeatBoxGui {
     // adding Client components for chat
     private JList<String> incomingList;
     private JTextField userMessage;
+    private JTextField userNameField;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private int nextNum;
@@ -134,19 +135,27 @@ public class BeatBoxGui {
 	JButton restoreBtn = new JButton("Restore");
 	restoreBtn.addActionListener(new LoadListener());
 	buttonBox.add(restoreBtn);
-	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
-
+	buttonBox.add(Box.createRigidArea(new Dimension(0, 15)));
+	
 	// adding client chat components
+	buttonBox.add(new JLabel("User Name"));
+	userNameField = new JTextField(userName);
+	userNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, userNameField.getPreferredSize().height));
+	buttonBox.add(userNameField);
+	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
+	
+	buttonBox.add(new JLabel("Sequence Name"));
+	userMessage = new JTextField();
+	userMessage.setMaximumSize(new Dimension(Integer.MAX_VALUE, userMessage.getPreferredSize().height));
+	buttonBox.add(userMessage);
+	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
+	
 	JButton sendChatBtn = new JButton("sendIt");
 	sendChatBtn.addActionListener(new SendButtonListener());
 	buttonBox.add(sendChatBtn);
 	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
 	
-	userMessage = new JTextField("Sequence Name");
-	userMessage.setMaximumSize(new Dimension(Integer.MAX_VALUE, userMessage.getPreferredSize().height));
-	buttonBox.add(userMessage);
-	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
-	
+	buttonBox.add(new JLabel("Sequence List"));
 	listVector = new Vector<String>();
 	otherSeqsMap = new HashMap<String, boolean[]>();
 	incomingList = new JList<String>();
@@ -230,7 +239,7 @@ public class BeatBoxGui {
 	int[] trackList = null;
 
 	// delete old track, make a new one
-	deleteTracks();
+	sequence.deleteTrack(null);
 	track = sequence.createTrack();
 
 	for (int i = 0; i < 16; i++) {
@@ -446,7 +455,7 @@ public class BeatBoxGui {
 	public void actionPerformed(ActionEvent event) {
 	    
 	    boolean[] checkboxState = getCheckboxState();
-	    
+	    userName = userNameField.getText();
 	    try{
 		out.writeObject(userName + nextNum++ + ": "+userMessage.getText());
 		out.writeObject(checkboxState);
