@@ -50,7 +50,7 @@ public class BeatBoxGui {
     
     public BeatBoxGui(){
 	 // use default settings
-	//connect(); // connect to server
+	connect(); // connect to server
 	initialize(); // build GUI and MIDI
     }
     
@@ -126,7 +126,7 @@ public class BeatBoxGui {
 	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
 
 	// adding serialize buttons
-	JButton serializeBtn = new JButton("Serialize It");
+	JButton serializeBtn = new JButton("saveSet");
 	serializeBtn.addActionListener(new SerializeListener());
 	buttonBox.add(serializeBtn);
 	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -231,7 +231,7 @@ public class BeatBoxGui {
 	int[] trackList = null;
 
 	// delete old track, make a new one
-	sequence.deleteTrack(null);
+	deleteTracks();
 	track = sequence.createTrack();
 
 	for (int i = 0; i < 16; i++) {
@@ -262,6 +262,13 @@ public class BeatBoxGui {
 	    sequencer.setTempoInBPM(120);
 	} catch (Exception e) {
 	    e.printStackTrace();
+	}
+    }
+    
+    private void deleteTracks(){
+	Track[] allTracks = sequence.getTracks();
+	for (Track t : allTracks){
+	    sequence.deleteTrack(t);
 	}
     }
 
@@ -358,6 +365,8 @@ public class BeatBoxGui {
 	    while (allBoxes.hasNext()) {
 		allBoxes.next().setSelected(false);
 	    }
+	    
+	    changeSequence(new boolean[256]);
 	    sequencer.stop();
 	}
     }

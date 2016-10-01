@@ -8,9 +8,16 @@ public class MusicServer {
 
     private ArrayList<ObjectOutputStream> clientOutputStreams;
     private int portNum = 5000;
+    private ServerSocket serverSock = null;
 
     public static void main(String[] args) {
-	new MusicServer().go();
+	MusicServer musicServer = new MusicServer();
+	musicServer.go();
+	Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+	    public void run(){
+		musicServer.closeServerSocket();
+	    }
+	}, "CloseServerSocket"));
 
     }
 
@@ -47,7 +54,8 @@ public class MusicServer {
     public void go() {
 	clientOutputStreams = new ArrayList<ObjectOutputStream>();
 	try {
-	    ServerSocket serverSock = new ServerSocket(portNum);
+	    serverSock = new ServerSocket(portNum);
+	    System.out.println("connected on port "+portNum);
 	    while (true) {
 		Socket clientSocket = serverSock.accept();
 		ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -73,6 +81,16 @@ public class MusicServer {
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
+	}
+    }
+    
+    public void closeServerSocket(){
+	try {
+	    if (this.serverSock != null){
+		this.serverSock.close();
+	    }
+	} catch (IOException e) {
+	    e.printStackTrace();
 	}
     }
 
