@@ -10,16 +10,17 @@ public class MusicServer {
     private int portNum = 5000;
     private ServerSocket serverSock = null;
 
-    public static void main(String[] args) {
-	MusicServer musicServer = new MusicServer();
-	musicServer.go();
-	Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
-	    public void run(){
-		musicServer.closeServerSocket();
-	    }
-	}, "CloseServerSocket"));
-
-    }
+    // the server code is included here but is never used, run it independently of the client
+//    public static void main(String[] args) {
+//	MusicServer musicServer = new MusicServer();
+//	musicServer.go();
+//	Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+//	    public void run(){
+//		musicServer.closeServerSocket();
+//	    }
+//	}, "CloseServerSocket"));
+//
+//    }
 
     public class ClientHandler implements Runnable {
 	private ObjectInputStream in;
