@@ -142,7 +142,8 @@ public class BeatBoxGui {
 	buttonBox.add(sendChatBtn);
 	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
 	
-	userMessage = new JTextField();
+	userMessage = new JTextField("Sequence Name");
+	userMessage.setMaximumSize(new Dimension(Integer.MAX_VALUE, userMessage.getPreferredSize().height));
 	buttonBox.add(userMessage);
 	buttonBox.add(Box.createRigidArea(new Dimension(0, 5)));
 	
@@ -189,8 +190,6 @@ public class BeatBoxGui {
 	setUpMidi();
 
 	frame.pack();
-	
-	//userMessage.setPreferredSize(new Dimension(100, 20));
 
 	// set size to 75% of screen size
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -382,27 +381,32 @@ public class BeatBoxGui {
 
 	return checkboxes;
     }
+    
+    private void serializeToFile() {
+	// create a boolean area of size 256, loop through checkboxList and
+	// set boolean[i] to true if checkbox at that position is checked
+	// prompt the user to choose a file
+	// write the boolean array to given file
+
+	boolean[] checkboxes = getCheckboxState();
+
+	JFileChooser fileSave = new JFileChooser();
+	fileSave.showSaveDialog(frame);
+
+	try {
+	    ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(fileSave.getSelectedFile()));
+	    os.writeObject(checkboxes);
+	    os.close();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+
+    }
 
     private class SerializeListener implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
-	    // create a boolean area of size 256, loop through checkboxList and
-	    // set boolean[i] to true if checkbox at that position is checked
-	    // prompt the user to choose a file
-	    // write the boolean array to given file
-
-	    boolean[] checkboxes = getCheckboxState();
-	    
-	    JFileChooser fileSave = new JFileChooser();
-	    fileSave.showSaveDialog(frame);
-
-	    try {
-		ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(fileSave.getSelectedFile()));
-		os.writeObject(checkboxes);
-		os.close();
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    }
+	    serializeToFile();
 	}
     }
 
@@ -453,23 +457,32 @@ public class BeatBoxGui {
 	}
     }
     
-    private class MyListSelectionListener implements ListSelectionListener{
-	// if the user makes a selection, immideatly load the patter into the checkboxes
+    private class MyListSelectionListener implements ListSelectionListener {
+	// if the user makes a selection, immideatly load the patter into the
+	// checkboxes
 	@Override
 	public void valueChanged(ListSelectionEvent le) {
-	    if (!le.getValueIsAdjusting()){
-		String selected = (String)  incomingList.getSelectedValue();
-		if (selected != null){
-		    // go to the Hashmap for the sequence, and change the local sequence
-		    boolean[] selectedState = (boolean[]) otherSeqsMap.get(selected);
-		    changeSequence(selectedState);
-		    sequencer.stop();
-		    buildTrackAndStart();
+	    if (!le.getValueIsAdjusting()) {
+		String selected = (String) incomingList.getSelectedValue();
+		if (selected != null) {
+		    // ask user to save current sequence
+		    int response = JOptionPane.showConfirmDialog(frame, "Do you want to save the current sequence?",
+			    "Save Sequence", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		    if (response != JOptionPane.CLOSED_OPTION) {
+			if (response == JOptionPane.YES_OPTION) {
+			    serializeToFile();
+			}
+			// go to the Hashmap for the sequence, and change the
+			// local sequence
+			boolean[] selectedState = (boolean[]) otherSeqsMap.get(selected);
+			changeSequence(selectedState);
+			sequencer.stop();
+			buildTrackAndStart();
+		    }
+
 		}
 	    }
-	    
 	}
-	
     }
     
     private class RemoteReader implements Runnable{
